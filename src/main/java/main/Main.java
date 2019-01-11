@@ -1,25 +1,40 @@
 package main;
 
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.PointerInfo;
 import java.awt.Robot;
+import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import com.fazecast.jSerialComm.*;
 
 final class Main{
 	
-	static boolean running = true;
+	//Begin Input Control
+	
+	static char key;
+	static String keyString;
+	static String data = "";
 	
 	static int ind0;
 	static int ind1;
 	static int ind2;
 	static int ind3;
+	//End Input Control 
+	
+	
+	//Begin Mouse
 	
 	static int accelX;
 	static int accelXLast;
@@ -41,53 +56,97 @@ final class Main{
 	static int xThresholdNeg = 55;
 	static int yThresholdPos = 30;
 	static int yThresholdNeg = 60;
+	//End Mouse
 	
-	static char key;
-	static String keyString;
-	static String data = "";
+	//Begin Com
+	
+	static SerialPort comPort;
+	static InputStream in;
 	
 	static boolean isExists = true;
-	//static SerialPort comPort = SerialPort.getCommPorts()[0];
+	static boolean autoConnect = true;
+	//End Com
+	
+	//Begin Control Panel
+	
+	static ControlFrame controlFrame;// = new JFrame();\
+	//End Control Panel
 	
 	public static void main(String[] args) throws IOException{
 		
-		String comPortS = JOptionPane.showInputDialog("Enter Com Port Glove Is Connected To  Ex. COM4 , COM15");
 		
-		System.out.println(comPortS);
 		
-		SerialPort comPort = SerialPort.getCommPort(comPortS);
-
-		
+	//COM------------------------------------------------------------------------------------------	
+		//COM opening and automatic assignment
+		System.out.println("Auto Connect Attempt");
+		comPort = SerialPort.getCommPorts()[0];
+		System.out.println("Com Port Chosen Automaticly: "+comPort);
 		comPort.openPort();
 		comPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 100, 0);
-
-		InputStream in = comPort.getInputStream();
 		
+		in = comPort.getInputStream();
+		//End automatic
 		
 		try {
 			in.read();
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("Could not create input stream");
-			JOptionPane.showMessageDialog(null, "Input Stream Could Not Be Created Likely Wrong COMM Port Input or Port Already In Use, Try Again");
+			System.out.println("Input read auto");
+			
+		} catch (Exception e1) {
+			System.out.println("Auto Connect Failed");
+			autoConnect = false;
 			comPort.closePort();
-			in.close();
-			System.exit(0);
-			isExists = false;
 		}
 		
+		//COM opening and manual assignment
+		if(!autoConnect) {
+			System.out.println("Manual Connect Attempt");
+			String comPortS = JOptionPane.showInputDialog("Auto Connect Failed \nEnter Com Port Glove Is Connected To \nEx. COM4 , COM15");
+			comPort = SerialPort.getCommPort(comPortS);		
+			comPort.openPort();
+			comPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 100, 0);
+	
+			in = comPort.getInputStream();
 		
-		System.out.println("Attempted port opening and input stream created");
+		//End manual
+		
+		//Test for if manual connected correctly
+			try {
+				in.read();
+				System.out.println("Input read manual");
+			} catch (Exception e2) {
+				e2.printStackTrace();
+				System.out.println("Could not create input stream");
+				JOptionPane.showMessageDialog(null, "Input Stream Could Not Be Created\nLikely Wrong COM Port Input or Port Already In Use");
+				comPort.closePort();
+				System.exit(0);
+				isExists = false;
+			}
+		//End Test
+		}
+		System.out.println("Finished port opening and input stream created");
+		
+	//Control Panel-----------------------------------------------------------------------------------	
+		
+		controlFrame = new ControlFrame();
+        controlFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        controlFrame.setVisible(true);
+        controlFrame.setTitle("Dot Evolution");
+        controlFrame.setLocationRelativeTo(null);
+		
+		
+		
+		
 		
 			try
 			{
-				
+				//Mouse control object
 				mouse = new Robot();
 				
-			   while(running && isExists) {
+			//Mouse control all within this while loop	
+			   while(isExists) {
 			      
 				
-				   
+				  //Input Stream assignment and counting 
 			      key = (char)in.read();
 			      keyString = Character.toString(key);
 			      
@@ -108,7 +167,7 @@ final class Main{
 			    		  System.out.println(data);
 			    		  
 			    		//INPUT ALLOCATION-------------------------------------------------------------------------
-							//Data in format, length of x, y, and z vary from ones place to hundreds place
+							//Data in format, length of x, y, and z vary from ones place to hundreds place Ex.
 							//x/y/z#
 							//xxx/yyy/zzz/#
 								
@@ -144,18 +203,8 @@ final class Main{
 							
 							
 							
-							//Tap functionality EXPIREMENTAL----------------------------------------------------------
-							
-							//LastLast
-							//Last
-							//accelZ
-							
-							//When accelZLast is much less than accelZLastLast then accel z in unmoving
-							//Fast down then still
-							
-							//NEXT TO TRY fast down then Fast up
-							
-												
+							//Tap functionality-----------------------------------------------------------------------
+																										
 							if(accelZLast < accelZLastLast - 12) {
 								
 								System.out.println("Tap phase 1");
@@ -248,25 +297,20 @@ final class Main{
 			    		  catch (Exception e) {
 			    			  System.out.println("Error: "+ e.getMessage());
 			    		  }
-							
-			    	  }
-			    	  			    	  
+			    	  }		    	  
 			    	  data="";
 			      }
 			      else {
 			    	  data = data.concat(keyString);
 			      }
-			      
-			      
-			      
-			      
-			      
-			      
 			   }   
 			   
+			   
+			   //RIP
 			   if(!isExists) in.close(); comPort.closePort(); System.exit(0);
 			   
 			} catch (Exception e) { e.printStackTrace(); }
-			comPort.closePort();
+			
+			in.close(); comPort.closePort(); System.exit(0);
 	}	
 }	
