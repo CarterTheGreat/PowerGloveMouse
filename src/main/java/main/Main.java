@@ -7,6 +7,8 @@ import java.awt.Robot;
 import java.awt.event.InputEvent;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Scanner;
+
 import javax.swing.JOptionPane;
 
 import com.fazecast.jSerialComm.*;
@@ -44,18 +46,34 @@ final class Main{
 	static char key;
 	static String keyString;
 	static String data = "";
-	static SerialPort comPort = SerialPort.getCommPorts()[0];
 	
-	public static void main(String[] args) throws IOException {
+	static boolean isExists = true;
+	//static SerialPort comPort = SerialPort.getCommPorts()[0];
+	
+	public static void main(String[] args){
 		
+		String comPortS = JOptionPane.showInputDialog("Enter Com Port Glove Is Connected To  Ex. COM4 , COM15");
 		
-		JOptionPane.showInputDialog("Running");
+		System.out.println(comPortS);
 		
-		System.out.println("Running");
+		SerialPort comPort = SerialPort.getCommPort(comPortS);
+
 		
 		comPort.openPort();
 		comPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 100, 0);
+
 		InputStream in = comPort.getInputStream();
+		
+		
+		try {
+			in.read();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Could not create input stream");
+			JOptionPane.showMessageDialog(null, "Input Stream Could Not Be Created, Likely Wrong COMM Port Input");
+			isExists = false;
+		}
+		
 		
 		System.out.println("Attempted port opening and input stream created");
 				
@@ -64,7 +82,7 @@ final class Main{
 				
 				mouse = new Robot();
 				
-			   while(running) {
+			   while(running && isExists) {
 			      
 				
 				   
@@ -244,8 +262,8 @@ final class Main{
 			      
 			   }   
 			   
-			   
-			   in.close();
+			   if(isExists) in.close();
+				   
 			} catch (Exception e) { e.printStackTrace(); }
 			comPort.closePort();
 	}	
