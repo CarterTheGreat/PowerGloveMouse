@@ -7,7 +7,6 @@ import java.awt.Robot;
 import java.awt.event.InputEvent;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Scanner;
 
 import javax.swing.JOptionPane;
 
@@ -50,7 +49,7 @@ final class Main{
 	static boolean isExists = true;
 	//static SerialPort comPort = SerialPort.getCommPorts()[0];
 	
-	public static void main(String[] args){
+	public static void main(String[] args) throws IOException{
 		
 		String comPortS = JOptionPane.showInputDialog("Enter Com Port Glove Is Connected To  Ex. COM4 , COM15");
 		
@@ -70,13 +69,16 @@ final class Main{
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("Could not create input stream");
-			JOptionPane.showMessageDialog(null, "Input Stream Could Not Be Created, Likely Wrong COMM Port Input");
+			JOptionPane.showMessageDialog(null, "Input Stream Could Not Be Created Likely Wrong COMM Port Input or Port Already In Use, Try Again");
+			comPort.closePort();
+			in.close();
+			System.exit(0);
 			isExists = false;
 		}
 		
 		
 		System.out.println("Attempted port opening and input stream created");
-				
+		
 			try
 			{
 				
@@ -262,8 +264,8 @@ final class Main{
 			      
 			   }   
 			   
-			   if(isExists) in.close();
-				   
+			   if(!isExists) in.close(); comPort.closePort(); System.exit(0);
+			   
 			} catch (Exception e) { e.printStackTrace(); }
 			comPort.closePort();
 	}	
