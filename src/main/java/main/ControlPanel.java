@@ -6,12 +6,17 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class ControlPanel extends JPanel implements ActionListener{
 
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 163636841968587889L;
+	
 	
 	static GridBagConstraints c = new GridBagConstraints();	
 	

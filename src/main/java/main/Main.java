@@ -1,21 +1,15 @@
 package main;
 
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.PointerInfo;
 import java.awt.Robot;
-import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 
 import com.fazecast.jSerialComm.*;
 

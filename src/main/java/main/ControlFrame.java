@@ -1,6 +1,5 @@
 package main;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 
 import javax.swing.JFrame;
@@ -8,6 +7,11 @@ import javax.swing.JLabel;
 
 public class ControlFrame extends JFrame{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8880342242134574593L;
+	
 	static JLabel label = new JLabel();;
 	private ControlPanel controlPanel = new ControlPanel();
 	
