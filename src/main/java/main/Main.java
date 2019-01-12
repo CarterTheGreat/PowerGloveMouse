@@ -65,6 +65,7 @@ final class Main{
 	
 	static boolean isExists = true;
 	static boolean autoConnect = true;
+	static int autoRead = 1;
 	//End Com
 	
 	//Begin Control Panel
@@ -88,7 +89,8 @@ final class Main{
 		//End automatic
 		
 		try {
-			in.read();
+			autoRead = in.read();
+			System.out.println("Auto read : "+autoRead);
 			System.out.println("Input read auto");
 			
 		} catch (Exception e1) {
@@ -98,7 +100,7 @@ final class Main{
 		}
 		
 		//COM opening and manual assignment
-		if(!autoConnect) {
+		if(!autoConnect || autoRead == 0) {
 			System.out.println("Manual Connect Attempt");
 			String comPortS = JOptionPane.showInputDialog("Auto Connect Failed \nEnter Com Port Glove Is Connected To \nEx. COM4 , COM15");
 			comPort = SerialPort.getCommPort(comPortS);		
