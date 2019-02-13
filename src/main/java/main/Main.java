@@ -25,6 +25,9 @@ final class Main{
 	static int ind1;
 	static int ind2;
 	static int ind3;
+	static int ind4;
+	static int ind5;
+	static int ind6;
 	//End Input Control 
 	
 	
@@ -40,6 +43,9 @@ final class Main{
 	static int accelZLastLast;
 	static boolean tapPhaseOne;
 	static boolean tapped;
+	
+	static int flex1;
+	static int flex2;
 	
 	static int xDir;
 	static int yDir;
@@ -64,10 +70,11 @@ final class Main{
 	
 	//Begin Control Panel
 	
-	static ControlFrame controlFrame;// = new JFrame();\
+	static ControlFrame controlFrame;
+	static boolean running = true;
 	//End Control Panel
 	
-	public static void main(String[] args) throws IOException{
+	public static void main(String[] args) throws IOException {
 		
 		
 		
@@ -139,7 +146,7 @@ final class Main{
 				mouse = new Robot();
 				
 			//Mouse control all within this while loop	
-			   while(isExists) {
+			   while(isExists && running) {
 			      
 				
 				  //Input Stream assignment and counting 
@@ -156,7 +163,7 @@ final class Main{
 			    		  }
 			    	  }
 			    	  
-			    	  if(data.contains("<") && data.contains(">") && slashes == 2 ) {
+			    	  if(data.contains("<") && data.contains(">") && slashes == 5 ) {
 			    		
 			    		  try { 
 			    			  
@@ -164,22 +171,26 @@ final class Main{
 			    		  
 			    		//INPUT ALLOCATION-------------------------------------------------------------------------
 							//Data in format, length of x, y, and z vary from ones place to hundreds place Ex.
-							//x/y/z#
-							//xxx/yyy/zzz/#
+							//<on/xxx/yyy/zzz/f1/f2>
 								
 							//Data from 	
 							ind0 = data.indexOf('<');
 							ind1 = data.indexOf('/',0);
 							ind2 = data.indexOf('/',ind1+1);
-							ind3 = data.indexOf(">");
+							ind3 = data.indexOf('/',ind2+1);
+							ind4 = data.indexOf('/',ind3+1);
+							ind5 = data.indexOf('/',ind4+1);
+							ind6 = data.indexOf('>');
 							
 							//System.out.println("ind "+ ind1+" "+ind2);
 							
 							//AccelValue as string
-							String x = data.substring(ind0+1,ind1);
-							String y = data.substring(ind1+1,ind2);	
-							String z = data.substring(ind2+1,ind3);
+							String x = data.substring(ind1+1,ind2);
+							String y = data.substring(ind2+1,ind3);	
+							String z = data.substring(ind3+1,ind4);
 								
+							String f1 = data.substring(ind4+1,ind5);
+							String f2 = data.substring(ind5+1,ind6);
 							//System.out.println("String x, y, & z "+x+ " " +y+" "+z);
 							
 							//Accel value as int
@@ -187,6 +198,8 @@ final class Main{
 							accelY = Integer.parseInt(y);
 							accelZ = Integer.parseInt(z);
 							
+							flex1 = Integer.parseInt(f1);
+							flex2 = Integer.parseInt(f2);
 							//System.out.println("Accel x y & z "+accelX+" "+accelY+" "+accelZ);
 							
 							if(accelX < xThresholdPos && accelX > -xThresholdNeg) {
@@ -278,11 +291,10 @@ final class Main{
 							
 							//System.out.println("Mouse location "+mouseX+" "+mouseY);
 							//System.out.println(xDir+ " " +yDir);
-							if(!tapped) {
-								
-								mouse.mouseMove(mouseX+xDir,mouseY-yDir);
-								
-							}else Thread.sleep(50);
+							if(flex1 > 150) {
+								mouse.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+							}else mouse.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+							mouse.mouseMove(mouseX+xDir,mouseY-yDir);
 							
 							tapPhaseOne = false;
 							tapped= false;
